@@ -1,0 +1,291 @@
+/* === Merged Type‑Kana styles ===
+   Source A: global.postcss
+   Source B: theme.postcss
+   Note: PostCSS custom properties and selectors preserved.
+*/
+
+/* --- Begin global.postcss --- */
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+:root {
+	--standard-curve: cubic-bezier(0.4, 0, 0.2, 1);
+	--deceleration-curve: cubic-bezier(0, 0, 0.2, 1);
+	--standard-border-radius: 0.9rem;
+	--line-height: 1.5;
+	--line-space: 1.5rem;
+}
+
+body {
+	margin: 0;
+	color: var(--text-color);
+	background: var(--background-color);
+	position: relative;
+
+	/*
+      Primary font is M+ Type-2, followed by fallbacks
+      https://stackoverflow.com/questions/14563064/japanese-standard-web-fonts/14573813#14573813
+    */
+	font-family: 'M+ 2p', 'MS PGothic', 'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', Osaka,
+		メイリオ, Meiryo, 'ＭＳ Ｐゴシック', 'MS PGothic', 'ＭＳ ゴシック', 'MS Gothic',
+		'Noto Sans CJK JP', TakaoPGothic, sans-serif;
+	font-size: 16px;
+}
+
+* {
+	touch-action: pan-y; /* Prevent zooming in mobile Safari. */
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+:focus {
+	outline-color: var(--focus-color);
+}
+
+p {
+	font-size: 1em;
+	font-kerning: normal;
+	font-variant-ligatures: common-ligatures contextual;
+	font-feature-settings: 'kern', 'liga', 'clig', 'calt';
+	margin-top: 0;
+	margin-bottom: var(--line-space);
+}
+
+h1 {
+	font-size: 2em;
+	font-weight: 500;
+	margin-top: 0;
+	margin-bottom: var(--line-space);
+	line-height: 1.25;
+}
+
+h2 {
+	font-size: 1.5em;
+	font-weight: 500;
+	margin-top: 0;
+	margin-bottom: var(--line-space);
+	line-height: 1.25;
+}
+
+h3 {
+	font-size: 1.25em;
+	font-weight: 500;
+	margin-top: 0;
+	margin-bottom: var(--line-space);
+	line-height: 1.25;
+}
+
+hr {
+	border: none;
+	background: var(--text-color-lighter);
+	height: 1px;
+	margin: calc(1.5 * var(--line-space)) 0;
+}
+
+.text-link {
+	color: var(--secondary-accent-color);
+	text-decoration: none;
+	border-bottom: 1px solid var(--secondary-accent-color);
+
+	&:active,
+	&:focus-visible {
+		outline: none;
+		color: var(--text-color-on-focus-color);
+		background: var(--focus-color);
+		border-color: var(--focus-color);
+	}
+
+	&[target='_blank'] {
+		&:before {
+			content: '';
+			display: inline-block;
+			vertical-align: baseline;
+			position: relative;
+			top: 0.15em; /* visual balance */
+			width: 1em;
+			height: 1em;
+			background-color: var(--secondary-accent-color);
+			mask-image: url('/icon/open-in-new.svg');
+			mask-repeat: no-repeat;
+			mask-position: 50% 50%;
+		}
+
+		&:active:before,
+		&:focus-visible:before {
+			background-color: var(--text-color-on-focus-color);
+		}
+	}
+}
+
+.content-width {
+	max-width: 40rem;
+}
+
+.content-padding {
+	padding: calc(1.4 * var(--line-space));
+
+	@media screen and (max-width: 40em) {
+		padding: var(--line-space);
+	}
+}
+
+.center {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.sr-only {
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
+	height: 1px;
+	width: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+}
+
+.glass-morphism {
+	backdrop-filter: blur(8px);
+
+	/* Fallback for crap browsers like Firefox */
+	@supports (not (backdrop-filter: none)) {
+		background: var(--background-color);
+	}
+
+	&:before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: var(--background-color);
+		opacity: 0.8;
+	}
+
+	&.contrast {
+		/* Fallback for crap browsers like Firefox */
+		@supports (not (backdrop-filter: none)) {
+			background: var(--background-contrast);
+		}
+
+		&:before {
+			background: var(--background-contrast);
+		}
+	}
+}
+
+/* --- End global.postcss --- */
+
+/* --- Begin theme.postcss --- */
+@define-mixin light-theme {
+	--background-color: #fff6e0;
+
+	--background-contrast: #ffe9be;
+	--background-contrast-light: #ffdfaa;
+
+	--text-color: #00241b;
+	--text-color-light: #938c7b;
+	--text-color-lighter: #dfd3b9;
+
+	--accent-color: hsl(340, 63%, 52%);
+	--text-color-on-accent-color: white;
+	--border-color-on-accent-color: hsl(238, 61%, 8%);
+
+	--secondary-accent-color: hsl(180, 73%, 45%);
+	--text-color-on-secondary-accent-color: #00241b;
+
+	--form-element-background: white;
+	--form-element-primary-color: hsl(220, 100%, 57%);
+	--form-element-primary-color-contrast: hsl(220, 100%, 64%);
+
+	--background-color-inverse: hsl(296, 25%, 12%);
+	--text-color-inverse: white;
+
+	--focus-color: #3946ff;
+	--text-color-on-focus-color: white;
+
+	--highlight-color: #f76b5e;
+
+	--backdrop-color: rgba(0, 0, 0, 0.4);
+}
+
+@define-mixin dark-theme {
+	--background-color: hsl(296, 25%, 8%);
+	--background-contrast: hsl(300, 24%, 14%);
+	--background-contrast-light: hsl(300, 24%, 16%);
+
+	--text-color: hsl(326, 18%, 75%);
+	--text-color-light: hsl(326, 10%, 46%);
+	--text-color-lighter: hsl(326, 14%, 23%);
+
+	--accent-color: hsl(304, 70%, 45%);
+	--text-color-on-accent-color: white;
+	--border-color-on-accent-color: white;
+
+	--secondary-accent-color: hsl(202, 87%, 45%);
+	--text-color-on-secondary-accent-color: white;
+
+	--form-element-background: #422e44;
+	--form-element-primary-color: hsl(220, 100%, 57%);
+	--form-element-primary-color-contrast: hsl(220, 100%, 64%);
+
+	--background-color-inverse: hsl(43, 100%, 94%);
+	--text-color-inverse: hsl(165, 100%, 7%);
+
+	--focus-color: white;
+	--text-color-on-focus-color: black;
+
+	--highlight-color: hsl(27, 100%, 43%);
+
+	--backdrop-color: rgba(0, 0, 0, 0.4);
+}
+
+:root.light-theme {
+	@mixin light-theme;
+
+	/*
+		::backdrop pseudo-elements do not inherit anything, and that includes
+		variables :(
+
+		https://fullscreen.spec.whatwg.org/#::backdrop-pseudo-element
+	*/
+	::backdrop {
+		@mixin light-theme;
+	}
+}
+
+:root.dark-theme {
+	@mixin dark-theme;
+
+	::backdrop {
+		@mixin dark-theme;
+	}
+}
+
+:root:not(.theme-set-by-js) {
+	@mixin light-theme;
+
+	::backdrop {
+		@mixin light-theme;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		@mixin dark-theme;
+
+		::backdrop {
+			@mixin dark-theme;
+		}
+	}
+}
+
+/* --- End theme.postcss --- */
