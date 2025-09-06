@@ -5,7 +5,7 @@ type Props = {
 	label?: string;
 };
 
-export const AutioButton: React.FC<Props> = ({ src, label = 'Play' }) => {
+export const AudioButton: React.FC<Props> = ({ src, label = 'Play' }) => {
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 
 	const play = async () => {
