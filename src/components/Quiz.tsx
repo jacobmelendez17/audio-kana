@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuiz } from '../store/quiz';
 import { AudioButton } from './AudioButton';
+import { Button } from './Button';
 
 type Result = { open: boolean; ok: boolean; message: string };
 
@@ -88,44 +89,36 @@ export const Quiz: React.FC<{ onFinish?: () => void }> = ({ onFinish }) => {
 		setResult({ open: true, ok: false, message: `Hint: ${hint}` });
 	};
 
+	// src/components/Quiz.tsx (only the inner content; no outer .card/.container)
 	return (
-		<div className="quiz-container">
-			<div className="card">
-				<div className="card-body center flex-col gap-4">
-					<AudioButton onPlay={playCurrent} />
+		<div className="card-body center flex-col gap-4">
+			<AudioButton onPlay={playCurrent} />
 
-					<input
-						className="input large"
-						placeholder="Type the English meaning…"
-						value={value}
-						onChange={(e) => setValue(e.target.value)}
-						onKeyDown={handleKeyDown}
-						autoFocus
-					/>
+			<input
+				className="input large"
+				placeholder="Type the English meaning…"
+				value={value}
+				onChange={(e) => setValue(e.target.value)}
+				onKeyDown={handleKeyDown}
+				autoFocus
+			/>
 
-					<div className="row gap-3">
-						<button className="btn outline" onClick={showHint}>
-							Hint
-						</button>
-						<button className="btn" onClick={handleSubmit}>
-							Enter
-						</button>
-					</div>
-
-					<div className="muted small">Press Enter to submit. Click ▶︎ to replay audio.</div>
-				</div>
+			<div className="session-actions">
+				<Button variant="outline" onClick={showHint}>
+					Hint
+				</Button>
+				<Button onClick={handleSubmit}>Enter</Button>
 			</div>
 
-			{/* Modal */}
+			<div className="muted small">Press Enter to submit. Click ▶︎ to replay audio.</div>
+
 			{result.open && (
 				<div className="modal-backdrop" onClick={closeAndNext}>
 					<div className="modal" onClick={(e) => e.stopPropagation()}>
 						<div className={result.ok ? 'correct' : 'wrong'} style={{ marginBottom: 8 }}>
 							{result.message}
 						</div>
-						<button className="btn" onClick={closeAndNext}>
-							Next →
-						</button>
+						<Button onClick={closeAndNext}>Next →</Button>
 					</div>
 				</div>
 			)}

@@ -1,34 +1,11 @@
-/* Setup page compat (loaded after type-kana.css) */
-
-/* --- Theme defaults (match Type-Kana palette) --- */
-:root {
-	--background-color: #fff6e0;
-	--background-contrast: #ffe9be;
-	--background-contrast-light: #ffdfaa;
-
-	--text-color: #00241b;
-	--text-color-light: #938c7b;
-	--text-color-lighter: #dfd3b9;
-
-	--accent-color: hsl(340, 63%, 52%); /* pinkish red */
-	--text-color-on-accent-color: #ffffff;
-	--border-color-on-accent-color: hsl(238, 61%, 8%);
-
-	--focus-color: #3946ff;
-	--standard-border-radius: 14px;
-	--standard-curve: cubic-bezier(0.2, 0.9, 0.2, 1);
-	--form-element-background: #ffffff;
-}
-
-/* --- Global page background and base text --- */
+/* === Global page background === */
 html,
 body,
 #root {
 	height: 100%;
-}
-body {
-	background: var(--background-color);
-	color: var(--text-color);
+	margin: 0;
+	background: var(--background-color, #fff6e0) !important; /* cream */
+	color: var(--text-color, #00241b);
 	font-family:
 		'M PLUS 2',
 		system-ui,
@@ -39,36 +16,71 @@ body {
 		sans-serif;
 }
 
-/* --- Header / title spacing to match TK rhythm --- */
-.header.center {
-	margin: 24px 0 8px;
-}
-.title.center {
-	margin: 12px 0 16px;
+/* === Layout variables you can tweak === */
+:root {
+	--page-max: 1400px; /* max width of content */
+	--pill-min: 160px; /* minimum pill width */
+	--pill-font-jp: 26px; /* kana/kanji font size */
+	--pill-font-en: 17px; /* english font size */
+	--standard-border-radius: 14px;
 }
 
-/* --- Level chips (rounded, subtle shadow) --- */
+.content {
+	display: grid !important;
+	grid-template-columns: 1fr;
+	width: 100%;
+}
+
+/* 2) Center the page block itself */
+.page-container {
+	width: min(100%, var(--page-max));
+	justify-self: center; /* <-- key */
+	padding: 24px 20px;
+}
+
+/* 3) Keep app shell centered */
+.app.container {
+	width: min(100%, var(--page-max));
+	margin-inline: auto;
+	padding: 24px 20px;
+}
+
+/* === Setup Page === */
+.header.center {
+	display: flex;
+	justify-content: center;
+	margin: 20px 0 8px;
+}
+.title.center {
+	text-align: center;
+	margin: 10px 0 16px;
+}
+
+.level-toggle {
+	display: grid;
+	gap: 8px;
+	justify-items: center;
+}
 .level-toggle .label {
-	margin: 6px 0 10px;
-	color: var(--text-color);
+	margin: 4px 0 4px;
 }
 .chip-row {
 	display: flex;
 	flex-wrap: wrap;
+	justify-content: center;
 	gap: 8px;
 }
 .chip {
 	border-radius: 12px;
 	padding: 8px 12px;
-	background: var(--background-contrast);
+	background: var(--background-contrast, #ffe9be);
 	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
 }
 .chip.active {
-	background: var(--accent-color);
-	color: var(--text-color-on-accent-color);
+	background: var(--accent-color, hsl(340, 63%, 52%));
+	color: var(--text-color-on-accent-color, #fff);
 }
 
-/* --- “Select all” header + grid layout --- */
 .vocab-grid {
 	margin-top: 12px;
 }
@@ -76,51 +88,83 @@ body {
 	display: flex;
 	align-items: center;
 	gap: 12px;
-	margin: 10px 0 6px;
-}
-.vocab-grid .grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(220px, 1fr)); /* 3 columns like TK */
-	gap: 22px 36px;
+	justify-content: center;
+	margin: 10px 0 14px;
 }
 
-/* --- Pills (red when selected) --- */
+.vocab-grid .grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(var(--pill-min), 1fr));
+	gap: 18px 28px;
+	align-items: stretch;
+}
+
+/* === Pills === */
 .pill {
 	display: grid;
 	grid-template-rows: auto auto;
 	place-items: center;
 	gap: 6px;
-	padding: 10px 10px;
+	padding: 14px 16px;
 	border-radius: var(--standard-border-radius);
-	background: var(--background-contrast);
-	color: var(--text-color);
+	background: var(--background-contrast, #ffe9be);
+	color: var(--text-color, #00241b);
 	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
-	cursor: pointer;
 	user-select: none;
-	min-width: 68px;
+	width: 100%;
 }
+
 .pill input {
 	display: none;
 }
+
 .pill.checked {
-	background: var(--accent-color);
-	color: var(--text-color-on-accent-color);
-}
-.pill .jp {
-	font-size: 20px;
-	font-weight: 700;
-}
-.pill .en {
-	font-size: 12px;
-	opacity: 0.85;
+	background: var(--accent-color, hsl(340, 63%, 52%));
+	color: var(--text-color-on-accent-color, #fff);
 }
 
-/* --- Buttons (use your TK button rules) --- */
-.button {
-	cursor: pointer;
+.pill .jp {
+	font-size: var(--pill-font-jp);
+	font-weight: 700;
+	line-height: 1.15;
+	text-align: center;
 }
+
+.pill .en {
+	font-size: var(--pill-font-en);
+	opacity: 0.9;
+	text-align: center;
+}
+
+/* === Buttons === */
 .footer-actions {
 	margin-top: 18px;
 	display: flex;
+	justify-content: center;
+}
+
+/* === Session Page (quiz) === */
+.session-page {
+	min-height: calc(100vh - 120px); /* fill screen under header */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+}
+
+.session-card {
+	width: 100%;
+	max-width: 540px;
+}
+
+.session-card .input.large {
+	width: 100%;
+	max-width: 420px;
+	margin: 0 auto;
+}
+
+.session-actions {
+	display: flex;
+	gap: 12px;
 	justify-content: center;
 }

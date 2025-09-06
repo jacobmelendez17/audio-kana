@@ -4,6 +4,7 @@ import { VocabGrid } from '../components/VocabGrid';
 import { useSelection } from '../store/selection';
 import { useQuiz } from '../store/quiz';
 import type { VocabItem } from '../lib/wanikani';
+import { Button } from '../components/Button';
 
 export const SetupPage: React.FC<{ onStart: () => void }> = ({ onStart }) => {
 	const { level, setLevel, loadLevel, vocab, selectedIds } = useSelection();
@@ -21,14 +22,14 @@ export const SetupPage: React.FC<{ onStart: () => void }> = ({ onStart }) => {
 	};
 
 	return (
-		<div className="container">
+		<div className="setup-page page-container">
 			<h2 className="title center">Choose your vocab</h2>
 			<LevelToggle value={level} onChange={setLevel} />
 			<VocabGrid />
 			<div className="footer-actions">
-				<button className="btn" onClick={handleStart}>
+				<Button variant="fill" onClick={handleStart}>
 					Start quiz →
-				</button>
+				</Button>
 			</div>
 		</div>
 	);

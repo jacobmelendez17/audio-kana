@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { SetupPage } from './pages/Setup';
-import { SessionPage } from './pages/Session';
-import { SummaryPage } from './pages/Summary';
+import { SetupPage } from './routes/Setup';
+import { SessionPage } from './routes/Session';
+import { SummaryPage } from './routes/Summary';
 
 type Step = 'setup' | 'session' | 'summary';
 
