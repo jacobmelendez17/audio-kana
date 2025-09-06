@@ -8,17 +8,21 @@ export const VocabGrid: React.FC = () => {
 	if (error) return <p className="error">{error}</p>;
 
 	return (
+		// src/components/VocabGrid.tsx (inside the return)
 		<div className="vocab-grid">
 			<div className="grid-controls">
-				<button className="btn" onClick={selectAll}>
-					Select all
+				<button className="button outline" onClick={selectAll}>
+					<div className="effect">Select all</div>
 				</button>
-				å
-				<button className="btn outline" onClick={clearAll}>
-					Clear
+				<button className="button outline" onClick={clearAll}>
+					<div className="effect">Clear</div>
 				</button>
 				<div className="muted small">{selectedIds.size} selected</div>
 			</div>
+
+			{/* Optional column headers (fake) */}
+			{/* <div className="muted" style={{margin:"4px 0"}}>Select all</div> */}
+
 			<div className="grid">
 				{vocab.map((v) => {
 					const checked = selectedIds.has(v.id);
@@ -26,12 +30,11 @@ export const VocabGrid: React.FC = () => {
 						<label key={v.id} className={`pill ${checked ? 'checked' : ''}`}>
 							<input type="checkbox" checked={checked} onChange={() => toggle(v.id)} />
 							<span className="jp">{v.characters}</span>
-							<span className="en muted small">{v.meanings[0]}</span>
+							<span className="en">{v.meanings[0]}</span>
 						</label>
 					);
 				})}
 			</div>
-			å
 		</div>
 	);
 };

@@ -1,33 +1,12 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
-type Props = {
-	src: string | undefined;
-	label?: string;
-};
-
-export const AudioButton: React.FC<Props> = ({ src, label = 'Play' }) => {
-	const audioRef = useRef<HTMLAudioElement | null>(null);
-
-	const play = async () => {
-		if (!src) return;
-		const audio = new Audio(src);
-		audioRef.current = audio;
-		try {
-			await audio.play();
-		} catch {
-			// ignore autoplay errors
-		}
-	};
-
+export const AudioButton: React.FC<{ onPlay: () => void; disabled?: boolean }> = ({
+	onPlay,
+	disabled
+}) => {
 	return (
-		<button
-			className="btn primary"
-			aria-label={label}
-			onClick={play}
-			disabled={!src}
-			style={{ fontSize: '1.25rem', padding: '0.75rem 1.25rem' }}
-		>
-			▶︎ {label}
+		<button className="btn primary" aria-label="Play audio" onClick={onPlay} disabled={disabled}>
+			▶︎ Play audio
 		</button>
 	);
 };

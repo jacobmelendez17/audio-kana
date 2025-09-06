@@ -1,0 +1,126 @@
+/* Setup page compat (loaded after type-kana.css) */
+
+/* --- Theme defaults (match Type-Kana palette) --- */
+:root {
+	--background-color: #fff6e0;
+	--background-contrast: #ffe9be;
+	--background-contrast-light: #ffdfaa;
+
+	--text-color: #00241b;
+	--text-color-light: #938c7b;
+	--text-color-lighter: #dfd3b9;
+
+	--accent-color: hsl(340, 63%, 52%); /* pinkish red */
+	--text-color-on-accent-color: #ffffff;
+	--border-color-on-accent-color: hsl(238, 61%, 8%);
+
+	--focus-color: #3946ff;
+	--standard-border-radius: 14px;
+	--standard-curve: cubic-bezier(0.2, 0.9, 0.2, 1);
+	--form-element-background: #ffffff;
+}
+
+/* --- Global page background and base text --- */
+html,
+body,
+#root {
+	height: 100%;
+}
+body {
+	background: var(--background-color);
+	color: var(--text-color);
+	font-family:
+		'M PLUS 2',
+		system-ui,
+		-apple-system,
+		Segoe UI,
+		Roboto,
+		Arial,
+		sans-serif;
+}
+
+/* --- Header / title spacing to match TK rhythm --- */
+.header.center {
+	margin: 24px 0 8px;
+}
+.title.center {
+	margin: 12px 0 16px;
+}
+
+/* --- Level chips (rounded, subtle shadow) --- */
+.level-toggle .label {
+	margin: 6px 0 10px;
+	color: var(--text-color);
+}
+.chip-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.chip {
+	border-radius: 12px;
+	padding: 8px 12px;
+	background: var(--background-contrast);
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
+}
+.chip.active {
+	background: var(--accent-color);
+	color: var(--text-color-on-accent-color);
+}
+
+/* --- “Select all” header + grid layout --- */
+.vocab-grid {
+	margin-top: 12px;
+}
+.vocab-grid .grid-controls {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 10px 0 6px;
+}
+.vocab-grid .grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(220px, 1fr)); /* 3 columns like TK */
+	gap: 22px 36px;
+}
+
+/* --- Pills (red when selected) --- */
+.pill {
+	display: grid;
+	grid-template-rows: auto auto;
+	place-items: center;
+	gap: 6px;
+	padding: 10px 10px;
+	border-radius: var(--standard-border-radius);
+	background: var(--background-contrast);
+	color: var(--text-color);
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
+	cursor: pointer;
+	user-select: none;
+	min-width: 68px;
+}
+.pill input {
+	display: none;
+}
+.pill.checked {
+	background: var(--accent-color);
+	color: var(--text-color-on-accent-color);
+}
+.pill .jp {
+	font-size: 20px;
+	font-weight: 700;
+}
+.pill .en {
+	font-size: 12px;
+	opacity: 0.85;
+}
+
+/* --- Buttons (use your TK button rules) --- */
+.button {
+	cursor: pointer;
+}
+.footer-actions {
+	margin-top: 18px;
+	display: flex;
+	justify-content: center;
+}

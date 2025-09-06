@@ -1,0 +1,191 @@
+/* Compat mapping so React components look like Type-Kana */
+
+:root {
+	/* These are from your theme.postcss we merged earlier */
+	/* --accent-color, --text-color-on-accent-color, --background-color, --text-color, etc. */
+}
+
+.app.container {
+	max-width: 960px;
+	margin: 0 auto;
+	padding: 24px;
+}
+.header.center {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 16px;
+}
+.logo {
+	font-size: 42px;
+	font-weight: 800;
+	color: var(--text-color, #222);
+}
+
+.title.center {
+	text-align: center;
+	margin: 16px 0 24px;
+}
+.muted {
+	opacity: 0.75;
+}
+.small {
+	font-size: 0.9rem;
+}
+
+.row {
+	display: flex;
+	align-items: center;
+}
+.gap-3 {
+	gap: 12px;
+}
+.flex-col {
+	display: flex;
+	flex-direction: column;
+}
+.center {
+	align-items: center;
+	justify-content: center;
+}
+
+.card {
+	background: var(--form-element-background, #fff);
+	border-radius: 14px;
+	padding: 20px;
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+}
+.card-body {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.btn {
+	border: none;
+	border-radius: 14px;
+	padding: 10px 16px;
+	background: var(--background-contrast, #f3f3f3);
+	color: var(--text-color, #222);
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+	cursor: pointer;
+}
+.btn.primary {
+	background: var(--accent-color, #e44);
+	color: var(--text-color-on-accent-color, #fff);
+}
+.btn.outline {
+	background: transparent;
+	border: 2px solid var(--accent-color, #e44);
+	color: var(--accent-color, #e44);
+}
+
+.input {
+	border: 2px solid var(--background-contrast, #eee);
+	background: var(--form-element-background, #fff);
+	color: var(--text-color, #222);
+	border-radius: 14px;
+	padding: 10px 12px;
+}
+.input.large {
+	font-size: 1.15rem;
+	padding: 14px 16px;
+}
+
+.level-toggle .label {
+	margin: 4px 0 8px;
+	color: var(--text-color, #222);
+}
+.chip-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.chip {
+	border-radius: 12px;
+	padding: 8px 12px;
+	background: var(--background-contrast, #f2f2f2);
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
+}
+.chip.active {
+	background: var(--accent-color, #e44);
+	color: var(--text-color-on-accent-color, #fff);
+}
+
+.vocab-grid .grid-controls {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 12px 0;
+}
+.vocab-grid .grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+	gap: 10px;
+}
+.pill {
+	display: grid;
+	grid-template-rows: auto auto;
+	place-items: center;
+	gap: 4px;
+	padding: 10px 8px;
+	border-radius: 14px;
+	background: var(--background-contrast, #f2f2f2);
+	color: var(--text-color, #222);
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
+	cursor: pointer;
+	user-select: none;
+}
+.pill input {
+	display: none;
+}
+.pill.checked {
+	background: var(--accent-color, #e44);
+	color: var(--text-color-on-accent-color, #fff);
+}
+.pill .jp {
+	font-size: 20px;
+	font-weight: 700;
+}
+.pill .en {
+	font-size: 12px;
+}
+
+.footer-actions {
+	margin-top: 16px;
+	display: flex;
+	justify-content: center;
+}
+
+/* Quiz feedback modal */
+.modal-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.25);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 40;
+}
+.modal {
+	background: var(--form-element-background, #fff);
+	border-radius: 16px;
+	padding: 20px;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+	min-width: 280px;
+	text-align: center;
+}
+.modal .correct {
+	color: #0a8a0a;
+	font-weight: 700;
+}
+.modal .wrong {
+	color: #b00020;
+	font-weight: 700;
+}
+
+.status.correct {
+	color: #0a8a0a;
+}
+.status.wrong {
+	color: #b00020;
+}
