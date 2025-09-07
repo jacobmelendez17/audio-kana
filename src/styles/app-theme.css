@@ -1,0 +1,317 @@
+/* === Base / Theme (Type-Kana-ish) =============================== */
+:root {
+	/* layout knobs */
+	--page-max: 1200px; /* widen or narrow the whole page */
+	--pill-min: 170px; /* min width of vocab pills */
+	--pill-font-jp: 22px;
+	--pill-font-en: 12px;
+
+	/* TK palette & shape */
+	--background-color: #fff6e0;
+	--background-contrast: #ffe9be;
+	--text-color: #00241b;
+	--text-color-light: #938c7b;
+	--text-color-lighter: #dfd3b9;
+	--accent-color: hsl(340, 63%, 52%);
+	--text-color-on-accent-color: #fff;
+	--focus-color: #3946ff;
+	--standard-border-radius: 14px;
+	--standard-curve: cubic-bezier(0.2, 0.9, 0.2, 1);
+	--form-element-background: #fff;
+}
+
+html {
+	min-height: 100%;
+	background: var(--background-color) !important;
+}
+
+body {
+	display: block !important;
+	min-height: 100%;
+	margin: 0;
+	background: inherit; /* keep the cream */
+	color: var(--text-color);
+	font-family:
+		'M PLUS 2',
+		system-ui,
+		-apple-system,
+		'Segoe UI',
+		Roboto,
+		Arial,
+		sans-serif;
+}
+
+#root {
+	min-height: 100vh; /* ensure the React root fills the viewport */
+	background: inherit;
+}
+
+/* === App shell / centering ====================================== */
+.app.container {
+	width: min(100%, var(--page-max));
+	margin-inline: auto;
+	padding: 24px 20px;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch; /* <— add this */
+}
+.content {
+	flex: 1;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch; /* <— change from center to stretch */
+}
+.page-container {
+	width: min(100%, var(--page-max));
+	margin: 0 auto;
+	padding: 24px 20px;
+	background: inherit;
+}
+.header {
+	display: flex;
+	justify-content: center;
+	margin: 20px 0 8px;
+	width: 100%;
+}
+.header.center {
+	display: flex;
+	justify-content: center;
+	margin: 20px 0 8px;
+	width: 100%;
+}
+.title.center {
+	text-align: center;
+	margin: 10px 0 16px;
+}
+
+/* === Buttons (ported from Button.svelte) ======================== */
+.button {
+	--border-size: 3px;
+	--padding-vertical: 0.5em;
+	--padding-horizontal: 1.5em;
+	all: initial;
+	display: inline-block;
+	user-select: none;
+	cursor: pointer;
+	font-family: 'M PLUS 2';
+	font-weight: 500;
+	letter-spacing: 1px;
+	white-space: nowrap;
+}
+a.button:hover,
+a.button:focus {
+	text-decoration: underline;
+}
+.button .effect {
+	border: var(--border-size) solid transparent;
+	border-radius: var(--standard-border-radius);
+	padding: calc(var(--padding-vertical) - var(--border-size))
+		calc(var(--padding-horizontal) - var(--border-size));
+	transition:
+		transform 50ms var(--standard-curve),
+		color 75ms var(--standard-curve),
+		background-color 75ms var(--standard-curve),
+		border-color 75ms var(--standard-curve);
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+}
+.button.fill {
+	color: var(--text-color-on-accent-color);
+}
+.button.fill > .effect {
+	background: var(--accent-color);
+	border-color: transparent;
+}
+.button.outline {
+	color: var(--accent-color);
+}
+.button.outline > .effect {
+	background: transparent;
+	border-color: var(--accent-color);
+}
+.button:not(.disabled):focus-visible > .effect {
+	border-color: var(--focus-color);
+}
+.button:not(.disabled).outline:focus-visible {
+	color: var(--focus-color);
+}
+.button:not(.disabled):active > .effect {
+	transform: translateY(8%) scale(105%, 90%);
+}
+.button.disabled {
+	cursor: default;
+	pointer-events: none;
+}
+.button.disabled > .effect {
+	color: var(--text-color-lighter);
+	background: var(--text-color-light);
+}
+
+/* === Inputs / cards ================================================= */
+.input {
+	border: 2px solid var(--background-contrast);
+	background: var(--form-element-background);
+	color: var(--text-color);
+	border-radius: var(--standard-border-radius);
+	padding: 10px 12px;
+}
+.input.large {
+	font-size: 1.05rem;
+	padding: 14px 16px;
+}
+.card {
+	background: var(--form-element-background);
+	border-radius: var(--standard-border-radius);
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+	padding: 20px;
+}
+.card-body {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+/* === Setup: level chips + grid ===================================== */
+.level-toggle {
+	display: grid;
+	gap: 8px;
+	justify-items: center;
+}
+.level-toggle .label {
+	margin: 4px 0;
+	color: var(--text-color);
+}
+.chip-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 8px;
+}
+.chip {
+	border-radius: 12px;
+	padding: 8px 12px;
+	background: var(--background-contrast);
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
+}
+.chip.active {
+	background: var(--accent-color);
+	color: var(--text-color-on-accent-color);
+}
+
+.vocab-grid {
+	margin-top: 12px;
+}
+.vocab-grid .grid-controls {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	justify-content: center;
+	margin: 10px 0 14px;
+}
+
+/* Fit as many as possible per row; control pill size via --pill-min */
+.vocab-grid .grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(var(--pill-min), 1fr));
+	gap: 18px 20px;
+	align-items: stretch;
+}
+
+.pill {
+	display: grid;
+	grid-template-rows: auto auto;
+	place-items: center;
+	gap: 6px;
+	padding: 14px 16px;
+	width: 100%;
+	border-radius: var(--standard-border-radius);
+	background: var(--background-contrast);
+	color: var(--text-color);
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
+	user-select: none;
+}
+.pill input {
+	display: none;
+}
+.pill.checked {
+	background: var(--accent-color);
+	color: var(--text-color-on-accent-color);
+}
+.pill .jp {
+	font-size: var(--pill-font-jp);
+	font-weight: 700;
+	line-height: 1.15;
+	text-align: center;
+}
+.pill .en {
+	font-size: var(--pill-font-en);
+	opacity: 0.9;
+	text-align: center;
+}
+
+.footer-actions {
+	margin-top: 18px;
+	display: flex;
+	justify-content: center;
+}
+
+.session-page {
+	min-height: calc(100vh - 120px);
+	display: grid;
+	place-items: center;
+	padding: 24px 20px;
+}
+
+.session-card {
+	width: 100%;
+	max-width: 540px;
+	margin: 0 auto;
+}
+.session-card .input.large {
+	width: 100%;
+	max-width: 420px;
+	margin: 0 auto;
+}
+.session-actions {
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+}
+
+/* Modal used for correct/incorrect popup */
+.modal-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.25);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 40;
+}
+.modal {
+	background: var(--form-element-background);
+	border-radius: 16px;
+	padding: 20px;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+	min-width: 280px;
+	text-align: center;
+}
+.modal .correct {
+	color: #0a8a0a;
+	font-weight: 700;
+}
+.modal .wrong {
+	color: #b00020;
+	font-weight: 700;
+}
+
+/* Utility */
+.muted {
+	opacity: 0.75;
+}
+.small {
+	font-size: 0.9rem;
+}

@@ -5,7 +5,7 @@ export const SummaryPage: React.FC<{ onRestart: () => void }> = ({ onRestart }) 
 	const { correct, wrong, history } = useQuiz();
 
 	return (
-		<div className="contianer">
+		<div className="container">
 			<h2 className="title center">Session summary</h2>
 
 			<div className="card">

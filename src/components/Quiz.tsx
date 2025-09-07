@@ -13,37 +13,50 @@ export const Quiz: React.FC<{ onFinish?: () => void }> = ({ onFinish }) => {
 
 	const [value, setValue] = useState('');
 	const [result, setResult] = useState<Result>({ open: false, ok: false, message: '' });
-	const audioRef = useRef<HTMLAudioElement | null>(null);
 
-	// Play helper that always stops previous audio first
-	const playCurrent = useCallback(() => {
-		if (!current?.audio?.[0]) return;
-		// stop previous if any
-		if (audioRef.current) {
-			audioRef.current.pause();
-			audioRef.current.src = '';
-			audioRef.current.load();
-			audioRef.current = null;
-		}
-		const a = new Audio(current.audio[0]);
+	// Single reusable audio element (fixes Safari quirks and avoids creating many <audio> nodes)
+	const audioRef = useRef<HTMLAudioElement | null>(null);
+	const hasUserInteractedRef = useRef(false);
+
+	// Create one <audio> element on mount
+	useEffect(() => {
+		const a = document.createElement('audio');
+		a.preload = 'auto';
 		audioRef.current = a;
-		a.play().catch(() => {});
+
+		return () => {
+			try {
+				a.pause();
+				a.src = '';
+				a.load();
+			} catch {}
+			audioRef.current = null;
+		};
+	}, []);
+
+	// Play current item’s audio (safe across browsers)
+	const playCurrent = useCallback(() => {
+		const url = current?.audio?.[0];
+		const a = audioRef.current;
+		if (!url || !a) return;
+
+		try {
+			a.pause();
+			if (a.src !== url) a.src = url;
+			a.currentTime = 0;
+			const p = a.play();
+			// Ignore autoplay rejections (e.g., Safari before any user gesture)
+			if (p && typeof p.then === 'function') p.catch(() => {});
+		} catch {
+			/* no-op */
+		}
 	}, [current]);
 
-	// Autoplay when the card changes
+	// Reset UI when the quiz item changes; attempt an autoplay (will no-op if blocked)
 	useEffect(() => {
 		setValue('');
 		setResult({ open: false, ok: false, message: '' });
 		playCurrent();
-		return () => {
-			// cleanup on unmount/change
-			if (audioRef.current) {
-				audioRef.current.pause();
-				audioRef.current.src = '';
-				audioRef.current.load();
-				audioRef.current = null;
-			}
-		};
 	}, [playCurrent]);
 
 	// Navigate away when finished
@@ -67,17 +80,15 @@ export const Quiz: React.FC<{ onFinish?: () => void }> = ({ onFinish }) => {
 			ok,
 			message: ok ? '✓ Correct!' : `Answer: ${correctAnswer}`
 		});
-		// Do NOT call next() here; user will click Next or press Enter while modal is open
 	};
 
 	const closeAndNext = () => {
 		setResult((r) => ({ ...r, open: false }));
 		setValue('');
-		next(); // now advance
-		// audio for next item will be handled by the useEffect above
+		next();
 	};
 
-	// Allow Enter to submit OR to go next if modal open
+	// Allow Enter to submit OR go next if modal is open
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key !== 'Enter') return;
 		if (result.open) closeAndNext();
@@ -89,10 +100,14 @@ export const Quiz: React.FC<{ onFinish?: () => void }> = ({ onFinish }) => {
 		setResult({ open: true, ok: false, message: `Hint: ${hint}` });
 	};
 
-	// src/components/Quiz.tsx (only the inner content; no outer .card/.container)
 	return (
 		<div className="card-body center flex-col gap-4">
-			<AudioButton onPlay={playCurrent} />
+			<AudioButton
+				onPlay={() => {
+					hasUserInteractedRef.current = true;
+					playCurrent();
+				}}
+			/>
 
 			<input
 				className="input large"
