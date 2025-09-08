@@ -16,7 +16,12 @@ export default function App() {
 
 			<main className="content">
 				{step === 'setup' && <SetupPage onStart={() => setStep('session')} />}
-				{step === 'session' && <SessionPage onFinish={() => setStep('summary')} />}
+				{step === 'session' && (
+					<SessionPage
+						onFinish={() => setStep('summary')}
+						onBack={() => setStep('setup')} // 👈 added
+					/>
+				)}
 				{step === 'summary' && <SummaryPage onRestart={() => setStep('setup')} />}
 			</main>
 		</div>
