@@ -3,8 +3,6 @@ import { useQuiz } from '../store/quiz';
 import { AudioButton } from './AudioButton';
 import { Button } from './Button';
 
-type Result = { open: boolean; ok: boolean; message: string };
-
 export const Quiz: React.FC<{ onFinish?: () => void }> = ({ onFinish }) => {
 	const current = useQuiz((s) => s.current());
 	const finished = useQuiz((s) => s.finished);
@@ -12,51 +10,56 @@ export const Quiz: React.FC<{ onFinish?: () => void }> = ({ onFinish }) => {
 	const next = useQuiz((s) => s.next);
 
 	const [value, setValue] = useState('');
-	const [result, setResult] = useState<Result>({ open: false, ok: false, message: '' });
+	const [locked, setLocked] = useState(false);
+	const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
+	const [hint, setHint] = useState<string | null>(null);
 
-	// Single reusable audio element (fixes Safari quirks and avoids creating many <audio> nodes)
+	// Derived labels (fallbacks so we don't crash if fields vary)
+	const jp =
+		(current as any)?.characters ??
+		(current as any)?.jp ??
+		(current as any)?.readingsHiragana?.[0] ??
+		(current as any)?.readingsKatakana?.[0] ??
+		'';
+
+	// New: grab first hiragana reading for feedback
+	const hira: string =
+		(current as any)?.readingsHiragana?.[0] ??
+		(current as any)?.readings?.[0] ?? // in case your data names it this way
+		'';
+
+	// ====== Audio handling =====================================================
 	const audioRef = useRef<HTMLAudioElement | null>(null);
-	const hasUserInteractedRef = useRef(false);
 
-	// Create one <audio> element on mount
-	useEffect(() => {
-		const a = document.createElement('audio');
-		a.preload = 'auto';
-		audioRef.current = a;
-
-		return () => {
-			try {
-				a.pause();
-				a.src = '';
-				a.load();
-			} catch {}
-			audioRef.current = null;
-		};
-	}, []);
-
-	// Play current item’s audio (safe across browsers)
 	const playCurrent = useCallback(() => {
-		const url = current?.audio?.[0];
-		const a = audioRef.current;
-		if (!url || !a) return;
-
-		try {
-			a.pause();
-			if (a.src !== url) a.src = url;
-			a.currentTime = 0;
-			const p = a.play();
-			// Ignore autoplay rejections (e.g., Safari before any user gesture)
-			if (p && typeof p.then === 'function') p.catch(() => {});
-		} catch {
-			/* no-op */
+		if (!current?.audio?.[0]) return;
+		if (audioRef.current) {
+			audioRef.current.pause();
+			audioRef.current.src = '';
+			audioRef.current.load();
+			audioRef.current = null;
 		}
+		const a = new Audio(current.audio[0]);
+		audioRef.current = a;
+		a.play().catch(() => {});
 	}, [current]);
 
-	// Reset UI when the quiz item changes; attempt an autoplay (will no-op if blocked)
+	// Autoplay when the card changes and reset UI
 	useEffect(() => {
 		setValue('');
-		setResult({ open: false, ok: false, message: '' });
+		setLocked(false);
+		setWasCorrect(null);
+		setHint(null);
 		playCurrent();
+
+		return () => {
+			if (audioRef.current) {
+				audioRef.current.pause();
+				audioRef.current.src = '';
+				audioRef.current.load();
+				audioRef.current = null;
+			}
+		};
 	}, [playCurrent]);
 
 	// Navigate away when finished
@@ -72,69 +75,133 @@ export const Quiz: React.FC<{ onFinish?: () => void }> = ({ onFinish }) => {
 		);
 	}
 
+	// ====== Submit / Next ======================================================
+	const [correctionEN, setCorrectionEN] = useState<string>('');
+
 	const handleSubmit = () => {
-		if (!value.trim()) return;
+		if (!value.trim() || locked) return;
 		const { ok, correctAnswer } = submitAnswer(value);
-		setResult({
-			open: true,
-			ok,
-			message: ok ? '✓ Correct!' : `Answer: ${correctAnswer}`
-		});
+		setWasCorrect(ok);
+		setCorrectionEN(String(correctAnswer ?? ''));
+		setLocked(true); // Gate progression until Next/Enter
 	};
 
-	const closeAndNext = () => {
-		setResult((r) => ({ ...r, open: false }));
+	const gotoNext = () => {
+		if (!locked) return;
+		setLocked(false);
+		setWasCorrect(null);
 		setValue('');
-		next();
+		setHint(null);
+		next(); // advancing triggers the effect to (re)play audio
 	};
 
-	// Allow Enter to submit OR go next if modal is open
+	// Enter key on the input: submit or advance
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key !== 'Enter') return;
-		if (result.open) closeAndNext();
+		e.preventDefault();
+		e.stopPropagation(); // prevents this submit from reaching the window listener
+		if (locked) gotoNext();
 		else handleSubmit();
 	};
 
-	const showHint = () => {
-		const hint = current.readingsHiragana[0] ?? '';
-		setResult({ open: true, ok: false, message: `Hint: ${hint}` });
+	// NEW: global Enter hotkey so it works even when input is disabled/not focused
+	useEffect(() => {
+		const onDocKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Enter' && locked) {
+				e.preventDefault();
+				gotoNext(); // only runs on a *second* press, after feedback is visible
+			}
+		};
+		window.addEventListener('keydown', onDocKeyDown);
+		return () => window.removeEventListener('keydown', onDocKeyDown);
+	}, [locked]);
+
+	const onHint = () => {
+		const h = (current as any)?.readingsHiragana?.[0] ?? '';
+		if (h) setHint(h);
 	};
 
+	// ====== Styles for inline feedback (no modal) ==============================
+	const feedbackStyleBase: React.CSSProperties = {
+		width: '100%',
+		maxWidth: 540,
+		borderRadius: 14,
+		padding: 12,
+		textAlign: 'center',
+		fontWeight: 600
+	};
+	const correctStyle: React.CSSProperties = {
+		...feedbackStyleBase,
+		border: '2px solid #4ade80',
+		background: '#f0fdf4',
+		color: '#166534'
+	};
+	const wrongStyle: React.CSSProperties = {
+		...feedbackStyleBase,
+		border: '2px solid #f87171',
+		background: '#fef2f2',
+		color: '#991b1b'
+	};
+	const jpStyle: React.CSSProperties = { fontSize: '1.4rem', marginTop: 4, fontWeight: 800 };
+	const hiraStyle: React.CSSProperties = { fontSize: '1.05rem', marginTop: 2, opacity: 0.9 };
+	const enStyle: React.CSSProperties = { fontSize: '1rem', marginTop: 2, opacity: 0.9 };
+
+	// ====== Render =============================================================
 	return (
 		<div className="card-body center flex-col gap-4">
-			<AudioButton
-				onPlay={() => {
-					hasUserInteractedRef.current = true;
-					playCurrent();
-				}}
-			/>
+			{/* Feedback ABOVE the audio button */}
+			{wasCorrect !== null && (
+				<div style={wasCorrect ? correctStyle : wrongStyle} aria-live="polite">
+					<div style={{ opacity: 0.8, fontSize: '0.95rem' }}>
+						{wasCorrect ? 'Correct' : 'Incorrect'}
+					</div>
 
+					{/* JP always shown */}
+					<div style={jpStyle}>{jp}</div>
+
+					{/* When wrong, show hiragana (if present) and EN meaning */}
+					{!wasCorrect && hira && <div style={hiraStyle}>{hira}</div>}
+					{!wasCorrect && correctionEN && <div style={enStyle}>{correctionEN}</div>}
+				</div>
+			)}
+
+			{/* Audio button */}
+			<AudioButton onPlay={playCurrent} />
+
+			{/* Input */}
 			<input
 				className="input large"
 				placeholder="Type the English meaning…"
 				value={value}
 				onChange={(e) => setValue(e.target.value)}
 				onKeyDown={handleKeyDown}
+				disabled={locked}
 				autoFocus
 			/>
 
+			{/* Actions */}
 			<div className="session-actions">
-				<Button variant="outline" onClick={showHint}>
+				<Button variant="outline" onClick={onHint} disabled={locked}>
 					Hint
 				</Button>
-				<Button onClick={handleSubmit}>Enter</Button>
+
+				{!locked ? (
+					<Button onClick={handleSubmit}>Enter</Button>
+				) : (
+					<Button onClick={gotoNext}>Enter / Next →</Button>
+				)}
 			</div>
 
-			<div className="muted small">Press Enter to submit. Click ▶︎ to replay audio.</div>
+			<div className="muted small">
+				{!locked
+					? 'Press Enter to submit. Click ▶︎ to replay audio.'
+					: 'Press Enter to continue (hotkey enabled).'}
+			</div>
 
-			{result.open && (
-				<div className="modal-backdrop" onClick={closeAndNext}>
-					<div className="modal" onClick={(e) => e.stopPropagation()}>
-						<div className={result.ok ? 'correct' : 'wrong'} style={{ marginBottom: 8 }}>
-							{result.message}
-						</div>
-						<Button onClick={closeAndNext}>Next →</Button>
-					</div>
+			{/* Inline hint (non-blocking) */}
+			{hint && !locked && (
+				<div className="muted small" style={{ marginTop: -6 }}>
+					Hint: {hint}
 				</div>
 			)}
 		</div>
