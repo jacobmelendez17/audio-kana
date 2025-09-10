@@ -5,7 +5,7 @@ import { Button } from './Button';
 
 export const Quiz: React.FC<{
 	onFinish?: () => void;
-	onBack?: () => void; // 👈 added
+	onBack?: () => void;
 }> = ({ onFinish, onBack }) => {
 	const current = useQuiz((s) => s.current());
 	const finished = useQuiz((s) => s.finished);
@@ -24,6 +24,9 @@ export const Quiz: React.FC<{
 		(current as any)?.readingsHiragana?.[0] ??
 		(current as any)?.readingsKatakana?.[0] ??
 		'';
+
+	const hira: string =
+		(current as any)?.readingsHiragana?.[0] ?? (current as any)?.readings?.[0] ?? '';
 
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -58,7 +61,7 @@ export const Quiz: React.FC<{
 	}, [playCurrent]);
 
 	useEffect(() => {
-		if (finished && onFinish) onFinish();
+		if (finished && onFinish) onFinish(); // session completes → go to summary
 	}, [finished, onFinish]);
 
 	if (!current) {
@@ -76,7 +79,7 @@ export const Quiz: React.FC<{
 		const { ok, correctAnswer } = submitAnswer(value);
 		setWasCorrect(ok);
 		setCorrectionEN(String(correctAnswer ?? ''));
-		setLocked(true);
+		setLocked(true); // show feedback; require second Enter/Next to advance
 	};
 
 	const gotoNext = () => {
@@ -85,9 +88,10 @@ export const Quiz: React.FC<{
 		setWasCorrect(null);
 		setValue('');
 		setHint(null);
-		next();
+		next(); // advance; audio auto-plays via effect
 	};
 
+	// 1) Input: prevent bubbling so the submit press doesn't reach window
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key !== 'Enter') return;
 		e.preventDefault();
@@ -95,6 +99,18 @@ export const Quiz: React.FC<{
 		if (locked) gotoNext();
 		else handleSubmit();
 	};
+
+	// 2) Global hotkey: only active when locked (feedback visible)
+	useEffect(() => {
+		const onDocKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Enter' && locked) {
+				e.preventDefault();
+				gotoNext(); // second Enter advances
+			}
+		};
+		window.addEventListener('keydown', onDocKeyDown);
+		return () => window.removeEventListener('keydown', onDocKeyDown);
+	}, [locked]); // rebind on lock state change
 
 	const onHint = () => {
 		const h = (current as any)?.readingsHiragana?.[0] ?? '';
@@ -123,17 +139,19 @@ export const Quiz: React.FC<{
 		color: '#991b1b'
 	};
 	const jpStyle: React.CSSProperties = { fontSize: '1.4rem', marginTop: 4, fontWeight: 800 };
+	const hiraStyle: React.CSSProperties = { fontSize: '1.05rem', marginTop: 2, opacity: 0.9 };
 	const enStyle: React.CSSProperties = { fontSize: '1rem', marginTop: 2, opacity: 0.9 };
 
 	return (
 		<div className="card-body center flex-col gap-4">
-			{/* Feedback */}
+			{/* Feedback above audio */}
 			{wasCorrect !== null && (
-				<div style={wasCorrect ? correctStyle : wrongStyle}>
+				<div style={wasCorrect ? correctStyle : wrongStyle} aria-live="polite">
 					<div style={{ opacity: 0.8, fontSize: '0.95rem' }}>
 						{wasCorrect ? 'Correct' : 'Incorrect'}
 					</div>
 					<div style={jpStyle}>{jp}</div>
+					{!wasCorrect && hira && <div style={hiraStyle}>{hira}</div>}
 					{!wasCorrect && correctionEN && <div style={enStyle}>{correctionEN}</div>}
 				</div>
 			)}
@@ -152,7 +170,7 @@ export const Quiz: React.FC<{
 				autoFocus
 			/>
 
-			{/* Actions */}
+			{/* Actions row: Back | Hint | Enter */}
 			<div className="session-actions">
 				{onBack && (
 					<Button variant="outline" onClick={onBack}>

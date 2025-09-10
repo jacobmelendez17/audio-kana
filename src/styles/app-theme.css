@@ -315,3 +315,9 @@ a.button:focus {
 .small {
 	font-size: 0.9rem;
 }
+
+.tab-btn:focus-visible,
+select:focus-visible {
+	outline: 3px solid var(--focus-color, #3946ff);
+	outline-offset: 2px;
+}
